@@ -1,0 +1,37 @@
+{
+  "name": "clc-wallet-cli",
+  "version": "1.0.0",
+  "description": "A cli for the CLC Wallet (https://clc-crypto.github.io/wallet)",
+  "main": "cli.js",
+  "scripts": {
+    "test": "dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/clc-crypto/clc-cli.git"
+  },
+  "keywords": [
+    "CLC",
+    "crypto",
+    "wallet",
+    "cli"
+  ],
+  "author": "Icy",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/clc-crypto/clc-cli/issues"
+  },
+  "homepage": "https://github.com/clc-crypto/clc-cli#readme",
+  "dependencies": {
+    "commander": "^13.1.0",
+    "crypto-js": "^4.2.0",
+    "cryptojs": "^2.5.3",
+    "elliptic": "^6.6.1",
+    "fs": "^0.0.1-security",
+    "read": "^4.1.0",
+    "typescript": "^5.8.2"
+  },
+  "bin": {
+    "clc-wallet": "./cli.js"
+  }
+}
