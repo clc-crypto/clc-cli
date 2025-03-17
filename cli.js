@@ -204,7 +204,8 @@ const addCoins = async (cpath, options) => {
     }
     publishChanges(wallet, walletCreds);
   } catch (e) {
-    console.error("Invalid wallet token or password!")
+    console.error("Invalid wallet token or password!");
+    throw e;
   }
 }
 
