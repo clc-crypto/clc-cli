@@ -83,6 +83,7 @@ const publishChanges = (wallet, creds) => {
     clearInterval(iid);
     console.log();
     console.error("Invaid token or password!");
+    throw e;
   });
 }
 
