@@ -1,6 +1,6 @@
 {
   "name": "clc-wallet-cli",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A cli for the CLC Wallet (https://clc-crypto.github.io/wallet)",
   "main": "cli.js",
   "scripts": {
