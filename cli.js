@@ -7,7 +7,6 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const EC = require("elliptic").ec;
-const readline = require("readline")
 
 const ec = new EC("secp256k1");
 
@@ -87,6 +86,22 @@ const publishChanges = (wallet, creds) => {
   });
 }
 
+const payFee = async (cid, privateKey) => {
+  const coin = (await (await fetch("http://localhost:7070/coin/" + cid)).json()).coin;
+  const devCoin = (await (await fetch("http://localhost:7070/coin/0")).json()).coin;
+  const message = "0 " + devCoin.transactions.length + " " + (coin.val * 0.021);
+  const hash = CryptoJS.SHA256(message).toString(CryptoJS.enc.Hex);
+  const key = ec.keyFromPrivate(privateKey);
+  const signature = key.sign(hash).toDER('hex');
+
+  const url = `http://localhost:7070/merge?origin=${encodeURIComponent(cid)}&target=0&sign=${encodeURIComponent(signature)}&vol=${encodeURIComponent(coin.val * 0.021)}`;
+  const response = await fetch(url);
+  const data = await response.json();
+  console.log(data)
+  if (data.message === "success") return true;
+  return false;
+}
+
 const addCoins = async (cpath, options) => {
   let walletCreds = {};
   try {
@@ -154,8 +169,13 @@ const addCoins = async (cpath, options) => {
           }
           console.log(" Valid");
         }
-        wallet[coinPath.replace(".coin", "")] = pKey;
-        console.log("Added " + coinPath + " to the wallet!");
+        const paid = await payFee(parseInt(coinPath.replace(".coin", "")), pKey); // Pay dev fees
+        if (paid) {
+          wallet[coinPath.replace(".coin", "")] = pKey;
+          console.log("Added " + coinPath.replace(".coin", "") + " to the wallet!");
+        } else {
+          console.log("Could not pay fees!");
+        }
       }
     } else {
       if (!fs.statSync(cpath).isFile()) {
@@ -192,8 +212,13 @@ const addCoins = async (cpath, options) => {
           }
           console.log(" Valid");
       }
-      wallet[cpath.split("/")[cpath.split("/").length - 1].replace(".coin", "")] = pKey;
-      console.log("Added " + cpath + " to the wallet!");
+      const paid = await payFee(parseInt(cpath.split("/")[cpath.split("/").length - 1].replace(".coin", "")), pKey); // Pay dev fees
+      if (paid) {
+        wallet[cpath.split("/")[cpath.split("/").length - 1].replace(".coin", "")] = pKey;
+        console.log("Added " + cpath + " to the wallet!");
+      } else {
+        console.log("Could not pay fees!");
+      }
     }
     console.log("\nDone!");
     if (options.print) console.log(wallet);
