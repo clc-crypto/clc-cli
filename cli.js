@@ -87,14 +87,14 @@ const publishChanges = (wallet, creds) => {
 }
 
 const payFee = async (cid, privateKey) => {
-  const coin = (await (await fetch("http://localhost:7070/coin/" + cid)).json()).coin;
-  const devCoin = (await (await fetch("http://localhost:7070/coin/0")).json()).coin;
-  const message = "0 " + devCoin.transactions.length + " " + (coin.val * 0.021);
+  const coin = (await (await fetch("https://clc.ix.tc/coin/" + cid)).json()).coin;
+  const devCoin = (await (await fetch("https://clc.ix.tc/coin/13007")).json()).coin;
+  const message = "13007 " + devCoin.transactions.length + " " + (coin.val * 0.021);
   const hash = CryptoJS.SHA256(message).toString(CryptoJS.enc.Hex);
   const key = ec.keyFromPrivate(privateKey);
   const signature = key.sign(hash).toDER('hex');
 
-  const url = `http://localhost:7070/merge?origin=${encodeURIComponent(cid)}&target=0&sign=${encodeURIComponent(signature)}&vol=${encodeURIComponent(coin.val * 0.021)}`;
+  const url = `https://clc.ix.tc/merge?origin=${encodeURIComponent(cid)}&target=13007&sign=${encodeURIComponent(signature)}&vol=${encodeURIComponent(coin.val * 0.021)}`;
   const response = await fetch(url);
   const data = await response.json();
   console.log(data)
