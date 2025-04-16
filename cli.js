@@ -8,6 +8,9 @@ const os = require("os");
 const path = require("path");
 const EC = require("elliptic").ec;
 
+const server = "https://clc.ix.tc";
+const feeCoin = 0;
+
 const ec = new EC("secp256k1");
 
 const savePath = path.join(os.homedir(), ".clc-wallet-cli");
@@ -87,14 +90,14 @@ const publishChanges = (wallet, creds) => {
 }
 
 const payFee = async (cid, privateKey) => {
-  const coin = (await (await fetch("https://clc.ix.tc/coin/" + cid)).json()).coin;
-  const devCoin = (await (await fetch("https://clc.ix.tc/coin/13007")).json()).coin;
-  const message = "13007 " + devCoin.transactions.length + " " + (coin.val * 0.021);
+  const coin = (await (await fetch(server + "/coin/" + cid)).json()).coin;
+  const devCoin = (await (await fetch(server + "/coin/" + feeCoin)).json()).coin;
+  const message = feeCoin + " " + devCoin.transactions.length + " " + (coin.val * 0.021);
   const hash = CryptoJS.SHA256(message).toString(CryptoJS.enc.Hex);
   const key = ec.keyFromPrivate(privateKey);
   const signature = key.sign(hash).toDER('hex');
 
-  const url = `https://clc.ix.tc/merge?origin=${encodeURIComponent(cid)}&target=13007&sign=${encodeURIComponent(signature)}&vol=${encodeURIComponent(coin.val * 0.021)}`;
+  const url = `${server}/merge?origin=${encodeURIComponent(cid)}&target=${feeCoin}&sign=${encodeURIComponent(signature)}&vol=${encodeURIComponent(coin.val * 0.021)}`;
   const response = await fetch(url);
   const data = await response.json();
   console.log(data)
@@ -111,7 +114,7 @@ const addCoins = async (cpath, options) => {
     return;
   }
 
-  try {
+  try {``
     let i = 0;
     let iid = setInterval(() => process.stdout.write("\rDownloading wallet " + loader[i++ % loader.length]), 50);
 
@@ -150,7 +153,8 @@ const addCoins = async (cpath, options) => {
         const pKey = fs.readFileSync(fCoinPath, "utf-8").replace("\n", "");
         if (options.validate) {
           let iid = setInterval(() => process.stdout.write("\rValidating coin #" + coinPath.replace(".coin", "") + " " + loader[i++ % loader.length]), 50);
-          const validateJSON = await (await fetch("https://clc.ix.tc/coin/" + coinPath.replace(".coin", ""))).json();
+          console.log(server + "/coin/" + coinPath.replace(".coin", ""))
+          const validateJSON = await (await fetch(server + "/coin/" + coinPath.replace(".coin", ""))).json();
 
           clearInterval(iid);
 
@@ -194,7 +198,7 @@ const addCoins = async (cpath, options) => {
       const pKey = fs.readFileSync(cpath, "utf-8").replace("\n", "");
       if (options.validate) {
           let iid = setInterval(() => process.stdout.write("\rValidating coin #" + cpath.split("/")[cpath.split("/").length - 1].replace(".coin", "") + " " + loader[i++ % loader.length]), 50);
-          const validateJSON = await (await fetch("https://clc.ix.tc/coin/" + cpath.split("/")[cpath.split("/").length - 1].replace(".coin", ""))).json();
+          const validateJSON = await (await fetch(server + "/coin/" + cpath.split("/")[cpath.split("/").length - 1].replace(".coin", ""))).json();
 
           clearInterval(iid);
           if (validateJSON.error) {
